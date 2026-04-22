@@ -1,0 +1,24 @@
+{
+  "name": "vnoted-backend",
+  "version": "1.0.0",
+  "description": "Vnoted app backend — AWS Lambda functions",
+  "author": "Manikanta Pitla",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "deploy": "sam build && sam deploy --guided"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.540.0",
+    "@aws-sdk/lib-dynamodb": "^3.540.0",
+    "google-auth-library": "^9.6.3",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.12.5",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+dist/
+.aws-sam/
+
+# Environment variables - NEVER commit these
+.env
+.env.local
+.env.production
+backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Temp
+prompt.txt

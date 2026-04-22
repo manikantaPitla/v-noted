@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── PREMIUM DARK THEME (Default) ── */
+  :root {
+    --bg: #0D0D0F;
+    --bg-secondary: #141416;
+    --bg-tertiary: #1A1A1E;
+    --bg-elevated: #1F1F23;
+    
+    --surface: #1E1E22;
+    --surface-hover: #252529;
+    --surface-active: #2A2A2F;
+    --surface-border: #2E2E34;
+    --surface-elevated: #1F1F23;
+
+    --text-primary: #F3F4F6;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    --text-placeholder: #374151;
+
+    --accent: #ff3d00;
+    --accent-rgb: 129, 140, 248;
+    
+    /* Dynamic shades based on --accent-rgb */
+    --accent-hover: color-mix(in srgb, var(--accent), white 20%);
+    --accent-muted: rgba(var(--accent-rgb), 0.15);
+    --accent-subtle: rgba(var(--accent-rgb), 0.08);
+
+    --destructive: #F87171;
+    --destructive-muted: rgba(248, 113, 113, 0.15);
+
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    --shadow-panel: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+    
+    color-scheme: dark;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    transition: background-color 0.2s ease, color 0.1s ease;
+  }
+
+  #root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  ::selection { background: var(--accent-muted); color: var(--text-primary); }
+}
+
+@layer components {
+  /* Rich Text Editor */
+  .tiptap-editor { @apply outline-none min-h-[200px]; color: var(--text-primary); }
+  .tiptap-editor p { @apply text-sm my-1 leading-relaxed; }
+  .tiptap-editor h1 { @apply text-2xl font-bold mt-6 mb-3 tracking-tight; color: var(--text-primary); }
+  .tiptap-editor h2 { @apply text-xl font-bold mt-5 mb-2 tracking-tight; color: var(--text-primary); }
+  .tiptap-editor h3 { @apply text-lg font-bold mt-4 mb-2 tracking-tight; color: var(--text-primary); }
+  
+  /* Regular Lists */
+  .tiptap-editor ul:not([data-type="taskList"]) { @apply pl-6 my-2 list-disc; }
+  .tiptap-editor ol { @apply pl-6 my-2 list-decimal; }
+  .tiptap-editor li { @apply text-sm my-1 leading-relaxed; }
+  .tiptap-editor li > p { margin: 0; display: inline; }
+
+  /* Task Lists (Checkboxes) */
+  .tiptap-editor ul[data-type="taskList"] {
+    list-style: none !important;
+    padding-left: 0.5rem;
+    @apply my-4;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li {
+    @apply flex items-start gap-3 my-2;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li > label {
+    @apply mt-1 flex-shrink-0 cursor-pointer select-none;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] li > div {
+    @apply flex-1;
+  }
+
+  .tiptap-editor ul[data-type="taskList"] input[type="checkbox"] {
+    @apply w-4 h-4 rounded border-surface-border bg-surface-active text-accent cursor-pointer transition-all;
+    appearance: none;
+    border: 1px solid var(--surface-border);
+    position: relative;
+    background: var(--bg-tertiary);
+  }
+
+  .tiptap-editor ul[data-type="taskList"] input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .tiptap-editor ul[data-type="taskList"] input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .tiptap-editor strong { @apply font-bold; color: var(--text-primary); }
+  .tiptap-editor pre {
+    @apply rounded-xl p-4 my-3 font-mono text-sm leading-relaxed overflow-x-auto border;
+    background: var(--bg-tertiary);
+    border-color: var(--surface-border);
+    color: var(--text-primary);
+  }
+  .tiptap-editor blockquote {
+    @apply text-sm pl-4 my-3 italic border-l-4;
+    border-color: var(--accent);
+    color: var(--text-secondary);
+  }
+  .tiptap-editor hr { border-color: var(--surface-border); @apply my-4; }
+  .tiptap-editor a { color: var(--accent); @apply underline underline-offset-4 decoration-2; }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all duration-150;
+    color: var(--text-secondary);
+  }
+  .sidebar-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+  .sidebar-item.active { background: var(--accent-subtle); color: var(--accent); }
+
+  .tag-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-150 cursor-pointer border;
+    background: var(--surface-active);
+    color: var(--text-secondary);
+    border-color: var(--surface-border);
+  }
+  .tag-pill:hover { border-color: var(--accent-muted); color: var(--text-primary); transform: translateY(-1px); }
+
+  .skeleton { @apply relative overflow-hidden rounded-xl; background: var(--surface-hover); }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: 20px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
