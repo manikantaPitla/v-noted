@@ -15,7 +15,7 @@ interface AuthContextValue extends AuthState {
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
 const WELCOME_NOTE = {
-  title: 'Welcome to Vnoted! 🚀',
+  title: 'Welcome to v-noted! 🚀',
   content_text: 'Welcome to your new digital playground. Create, organize, and retrieve your thoughts with speed.',
   content_json: {
     type: 'doc',
@@ -23,12 +23,12 @@ const WELCOME_NOTE = {
       {
         type: 'heading',
         attrs: { level: 1 },
-        content: [{ type: 'text', text: 'Welcome to Vnoted! 🚀' }]
+        content: [{ type: 'text', text: 'Welcome to v-noted! 🚀' }]
       },
       {
         type: 'paragraph',
         content: [
-          { type: 'text', text: 'Vnoted is a fast, minimal note-taking app designed for clarity and speed. Here is a quick guide to get you started:' }
+          { type: 'text', text: 'v-noted is a fast, minimal note-taking app designed for clarity and speed. Here is a quick guide to get you started:' }
         ]
       },
       {

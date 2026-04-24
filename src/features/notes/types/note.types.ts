@@ -12,6 +12,19 @@ export interface Note {
   updated_at: string
   isPinned?: boolean
   is_public?: boolean
+  owner_profile?: {
+    name?: string
+    email?: string
+    avatar?: string
+  }
+}
+
+export interface NoteViewer {
+  viewer_id: string
+  name: string
+  email?: string
+  avatar?: string
+  last_seen_at: string
 }
 
 export interface CreateNoteDto {

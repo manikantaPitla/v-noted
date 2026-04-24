@@ -24,6 +24,6 @@ export const usePreferences = create<PreferencesStore>()(
       theme: 'dark',
       setTheme: (t) => set({ theme: t }),
     }),
-    { name: 'vnoted_preferences' }
+    { name: 'v_noted_preferences' }
   )
 )

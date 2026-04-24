@@ -12,7 +12,7 @@ import {
 const client = new DynamoDBClient({})
 export const ddb = DynamoDBDocumentClient.from(client)
 
-export const TABLE = process.env.NOTES_TABLE || 'vnoted-notes'
+export const TABLE = process.env.NOTES_TABLE || 'v-noted-notes'
 
 export const db = {
   get: (PK: string, SK: string) =>

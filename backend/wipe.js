@@ -3,7 +3,7 @@ const { DynamoDBDocumentClient, ScanCommand, BatchWriteCommand } = require('@aws
 
 const client = new DynamoDBClient({ region: 'ap-south-1' });
 const ddb = DynamoDBDocumentClient.from(client);
-const TABLE = 'vnoted-notes';
+const TABLE = 'v-noted-notes';
 
 async function wipeTable() {
     console.log(`Starting wipe of table: ${TABLE}`);

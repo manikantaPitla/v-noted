@@ -1,4 +1,4 @@
-# Vnoted — Capture. Organize. Retrieve.
+# v-noted — Capture. Organize. Retrieve.
 
 > A production-quality, developer-first note-taking app. Fast, minimal, keyboard-centric, and fully cloud-synced.
 
@@ -46,7 +46,7 @@ Open **http://localhost:5174** → click **"Continue with Google"** to log in.
 ## 📁 Project Structure
 
 ```
-Vnoted/
+v-noted/
 ├── src/
 │   ├── app/                    # App shell (providers, router)
 │   ├── pages/                  # Route-level pages (Settings, SharedNote, Dashboard)
@@ -94,7 +94,7 @@ cd backend
 sam build
 
 # 2. Deploy infrastructure
-sam deploy --stack-name vnoted-backend \
+sam deploy --stack-name v-noted \
            --resolve-s3 \
            --capabilities CAPABILITY_IAM \
            --parameter-overrides JwtSecret=<YOUR_SECRET> GoogleClientId=<YOUR_CLIENT_ID>

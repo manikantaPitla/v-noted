@@ -7,6 +7,7 @@ import { useTagsStore } from '@/features/tags/store/tags.store'
 import { useUIStore } from '@/store/ui.store'
 import { useNotes } from '@/features/notes/hooks/useNotes'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Logo } from '@/components/common/Logo'
 
 export function Sidebar() {
   const { data: notes = [] } = useNotes()
@@ -33,7 +34,6 @@ export function Sidebar() {
     } else if (!tab && activeCategory) {
       setActiveCategory(null)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search])
 
   // Deduplicate tags for a clean UI
@@ -51,11 +51,8 @@ export function Sidebar() {
   return (
     <aside className="flex flex-col h-full border-r border-surface-border bg-background-secondary select-none">
       {/* Logo */}
-      <header className="flex items-center gap-2.5 px-5 py-4 border-b border-surface-border">
-        <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center shadow-glow flex-shrink-0">
-          <FileText size={14} className="text-white" />
-        </div>
-        <span className="font-bold text-text-primary tracking-tight">Vnoted</span>
+      <header className="flex items-center px-5 py-4 border-b border-surface-border">
+        <Logo variant="dashboard" />
       </header>
 
       {/* All Notes */}

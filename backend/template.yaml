@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Vnoted — Note-taking app backend (Lambda + API Gateway + DynamoDB)
+Description: v-noted — Note-taking app backend (Lambda + API Gateway + DynamoDB)
 
 Globals:
   Function:
@@ -24,9 +24,13 @@ Resources:
   # DynamoDB Table
   NotesTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
-      TableName: vnoted-notes
+      TableName: v-noted-notes
       BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
       AttributeDefinitions:
         - AttributeName: PK
           AttributeType: S
@@ -50,7 +54,7 @@ Resources:
             ProjectionType: ALL
 
   # API Gateway
-  VnotedApi:
+  VNotedApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
@@ -72,7 +76,7 @@ Resources:
         GoogleAuth:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /auth/google
             Method: POST
 
@@ -89,57 +93,69 @@ Resources:
         GetNotes:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /notes
             Method: GET
         CreateNote:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /notes
             Method: POST
         GetNote:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /notes/{id}
+            Method: GET
+        GetNoteViewers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VNotedApi
+            Path: /notes/{id}/viewers
             Method: GET
         UpdateNote:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /notes/{id}
             Method: PUT
         DeleteNote:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /notes/{id}
             Method: DELETE
+        UpdatePresence:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VNotedApi
+            Path: /presence/{id}
+            Method: POST
         
         # Categories
         GetCategories:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /categories
             Method: GET
         CreateCategory:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /categories
             Method: POST
         UpdateCategory:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /categories/{id}
             Method: PUT
         DeleteCategory:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /categories/{id}
             Method: DELETE
 
@@ -147,7 +163,7 @@ Resources:
         ResetAccount:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /auth/reset
             Method: POST
 
@@ -155,7 +171,7 @@ Resources:
         UpdateProfile:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /auth/profile
             Method: PUT
 
@@ -163,19 +179,19 @@ Resources:
         GetTags:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /tags
             Method: GET
         CreateTag:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /tags
             Method: POST
         DeleteTag:
           Type: Api
           Properties:
-            RestApiId: !Ref VnotedApi
+            RestApiId: !Ref VNotedApi
             Path: /tags/{id}
             Method: DELETE
 
@@ -188,7 +204,7 @@ Resources:
         gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
       ResponseType: DEFAULT_4XX
-      RestApiId: !Ref VnotedApi
+      RestApiId: !Ref VNotedApi
 
   GatewayResponse5XX:
     Type: AWS::ApiGateway::GatewayResponse
@@ -198,9 +214,9 @@ Resources:
         gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
       ResponseType: DEFAULT_5XX
-      RestApiId: !Ref VnotedApi
+      RestApiId: !Ref VNotedApi
 
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
-    Value: !Sub "https://${VnotedApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Value: !Sub "https://${VNotedApi}.execute-api.${AWS::Region}.amazonaws.com/prod"

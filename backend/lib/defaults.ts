@@ -18,11 +18,9 @@ export const getDefaultData = (userId: string) => {
 
   // 2. Popular Tags (5 Requested)
   const tags = POPULAR_TAGS.map(tagName => {
-    const id = randomUUID()
     return {
       PK,
-      SK: `TAG#${id}`,
-      id,
+      SK: `TAG#${tagName}`,
       user_id: userId,
       name: tagName,
       created_at: now
@@ -38,13 +36,13 @@ export const getDefaultData = (userId: string) => {
     user_id: userId,
     category: catWorkId, // Changed to Work as it's the first category
     tags: ['urgent', 'ideas'], // Using the new popular tags
-    title: 'Welcome to Vnoted! 🚀',
+    title: 'Welcome to v-noted!',
     content_text: 'Welcome to your new digital playground. Create, organize, and retrieve your thoughts with speed.',
     content_json: {
       type: 'doc',
       content: [
-        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Welcome to Vnoted! 🚀' }] },
-        { type: 'paragraph', content: [{ type: 'text', text: 'Vnoted is a fast, minimal note-taking app designed for clarity and speed.' }] }
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Welcome to v-noted!' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'v-noted is a fast, minimal note-taking app designed for clarity and speed.' }] }
       ]
     },
     created_at: now,

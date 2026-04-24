@@ -1,4 +1,4 @@
-export const APP_NAME = 'Vnoted'
+export const APP_NAME = 'v-noted'
 
 export const ACCENT_COLORS = [
   { name: 'Indigo', value: '#818CF8' },
@@ -22,15 +22,15 @@ export const AUTOSAVE_DELAY = 2000 // ms
 export const SEARCH_DEBOUNCE = 300 // ms
 
 export const STORAGE_KEYS = {
-  TOKEN: 'vnoted_token',
-  USER: 'vnoted_user',
-  ACTIVE_NOTE: 'vnoted_active_note',
+  TOKEN: 'v_noted_token',
+  USER: 'v_noted_user',
+  ACTIVE_NOTE: 'v_noted_active_note',
 }
 
 export const QUERY_KEYS = {
-  NOTES: 'vnoted-notes',
-  NOTE: 'vnoted-note',
-  USER: 'vnoted-user',
+  NOTES: 'v-noted-notes',
+  NOTE: 'v-noted-note',
+  USER: 'v-noted-user',
 }
 
 export const IS_DEV = import.meta.env.DEV

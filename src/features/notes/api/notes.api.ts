@@ -1,5 +1,5 @@
 import { apiClient } from '@/services/apiClient'
-import { Note, CreateNoteDto, UpdateNoteDto } from '../types/note.types'
+import { Note, CreateNoteDto, UpdateNoteDto, NoteViewer } from '../types/note.types'
 
 export const notesApi = {
   getAll: async (params?: { category?: string; search?: string; tags?: string[] }): Promise<Note[]> => {
@@ -21,6 +21,21 @@ export const notesApi = {
     const response = await apiClient.get<Note>(`/notes/${id}`, {
       params: { u: userId },
     })
+    return response.data
+  },
+
+  heartbeatPresence: async (
+    id: string,
+    userId: string,
+    viewer: { viewer_id: string; name: string; email?: string; avatar?: string }
+  ): Promise<void> => {
+    await apiClient.post(`/presence/${id}`, viewer, {
+      params: { u: userId },
+    })
+  },
+
+  getViewers: async (id: string): Promise<NoteViewer[]> => {
+    const response = await apiClient.get<NoteViewer[]>(`/notes/${id}/viewers`)
     return response.data
   },
 

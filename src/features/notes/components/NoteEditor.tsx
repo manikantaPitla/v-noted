@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { getTiptapExtensions, tiptapEditorProps } from "@/lib/tiptap";
-import { Note, UpdateNoteDto } from "../types/note.types";
+import { Note, NoteViewer, UpdateNoteDto } from "../types/note.types";
 import { useUpdateNote } from "../hooks/useUpdateNote";
 import { useDeleteNote } from "../hooks/useDeleteNote";
-import { extractTextFromJson } from "../utils/note.utils";
+import { notesApi } from "../api/notes.api";
+import { extractTextFromJson, serializeNoteToPlainText } from "../utils/note.utils";
 import { CategorySelector } from "./CategorySelector";
 import { TagEditor } from "./TagEditor";
 import { formatFullDate } from "@/utils/formatDate";
@@ -13,6 +14,8 @@ import { useUIStore } from "@/store/ui.store";
 import { usePreferences } from "@/store/preferences.store";
 import { useToast } from "@/app/providers/ToastProvider";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { Modal } from "@/components/ui/modal";
+import { defaultUser } from "@/assets/images";
 import {
   Bold,
   Italic,
@@ -32,6 +35,13 @@ import {
   Globe,
   Link,
   Copy,
+  Download,
+  ExternalLink,
+  FileText,
+  FileType,
+  Printer,
+  QrCode,
+  Users,
   Strikethrough,
   Highlighter,
   Quote,
@@ -54,6 +64,8 @@ export function NoteEditor({ note }: NoteEditorProps) {
   const { autoSave } = usePreferences();
   const { success } = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [viewers, setViewers] = useState<NoteViewer[]>([]);
 
   const [title, setTitle] = useState(note.title);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -62,6 +74,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
   const noteIdRef = useRef(note.id);
 
   const shareUrl = `${window.location.origin}/shared/${note.user_id}/${note.id}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=10&data=${encodeURIComponent(shareUrl)}`;
 
   const togglePublicSharing = () => {
     const is_public = !note.is_public;
@@ -108,6 +121,82 @@ export function NoteEditor({ note }: NoteEditorProps) {
     }
   };
 
+  const getExportTitle = () => (titleRef.current || "Untitled Note").trim();
+  const getExportFileBase = () =>
+    getExportTitle()
+      .replace(/[\\/:*?"<>|]/g, "")
+      .replace(/\s+/g, "-")
+      .slice(0, 80) || "untitled-note";
+
+  const downloadBlob = (content: BlobPart, fileName: string, type: string) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const buildExportHtml = () => {
+    const body = editor?.getHTML() || "";
+    const escapedTitle = getExportTitle()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${escapedTitle}</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #111827; line-height: 1.6; margin: 40px; }
+    h1, h2, h3 { line-height: 1.25; }
+    pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-wrap: break-word; white-space: pre-wrap; }
+    code { font-family: Consolas, monospace; }
+    blockquote { border-left: 3px solid #d1d5db; margin-left: 0; padding-left: 14px; color: #4b5563; }
+    ul, ol { padding-left: 24px; }
+  </style>
+</head>
+<body>
+  <h1>${escapedTitle}</h1>
+  ${body}
+</body>
+</html>`;
+  };
+
+  const exportAsText = () => {
+    const plainText = `${getExportTitle()}\n\n${serializeNoteToPlainText(editor?.getJSON() as Record<string, unknown>)}`;
+    downloadBlob(plainText, `${getExportFileBase()}.txt`, "text/plain;charset=utf-8");
+    success("Text file downloaded");
+  };
+
+  const exportAsWord = () => {
+    downloadBlob(buildExportHtml(), `${getExportFileBase()}.doc`, "application/msword;charset=utf-8");
+    success("Word file downloaded");
+  };
+
+  const exportAsHtml = () => {
+    downloadBlob(buildExportHtml(), `${getExportFileBase()}.html`, "text/html;charset=utf-8");
+    success("HTML file downloaded");
+  };
+
+  const exportAsPdf = () => {
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+    if (!printWindow) {
+      window.alert("Please allow popups to export this note as PDF.");
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(buildExportHtml());
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 250);
+  };
+
   useEffect(() => {
     setTitle(note.title);
     titleRef.current = note.title;
@@ -115,6 +204,23 @@ export function NoteEditor({ note }: NoteEditorProps) {
     setSaveStatus("idle");
     editor?.commands.setContent(note.content_json || { type: "doc", content: [] });
   }, [note.id]);
+
+  useEffect(() => {
+    if (!note.is_public) {
+      setViewers([]);
+      return;
+    }
+
+    const loadViewers = () => {
+      notesApi.getViewers(note.id)
+        .then(setViewers)
+        .catch((err) => console.warn("Failed to load note viewers:", err));
+    };
+
+    loadViewers();
+    const interval = window.setInterval(loadViewers, 10000);
+    return () => window.clearInterval(interval);
+  }, [note.id, note.is_public]);
 
   const scheduleAutoSave = useCallback(
     (dto: UpdateNoteDto) => {
@@ -240,6 +346,8 @@ export function NoteEditor({ note }: NoteEditorProps) {
         </ToolbarButton>
 
         <div className="ml-auto flex items-center gap-2">
+          <LiveViewers viewers={viewers} />
+
           {saveStatus === "saving" && (
             <span className="flex items-center gap-1.5 text-xs animate-pulse-soft" style={{ color: "var(--text-muted)" }}>
               <Clock size={12} />
@@ -261,6 +369,33 @@ export function NoteEditor({ note }: NoteEditorProps) {
               Save
             </button>
           )}
+
+          <DD.Root>
+            <DD.Trigger asChild>
+              <button
+                className="p-1 rounded-lg transition-all duration-150 data-[state=open]:bg-accent/10 data-[state=open]:text-accent text-text-muted hover:text-text-primary hover:bg-surface-active"
+                title="Export note"
+              >
+                <Download size={14} />
+              </button>
+            </DD.Trigger>
+
+            <DD.Content align="end" sideOffset={12} className="w-48">
+              <DD.Label>Download</DD.Label>
+              <DD.Item onClick={exportAsPdf}>
+                <Printer size={14} className="opacity-70" />PDF
+              </DD.Item>
+              <DD.Item onClick={exportAsWord}>
+                <FileType size={14} className="opacity-70" />Word
+              </DD.Item>
+              <DD.Item onClick={exportAsText}>
+                <FileText size={14} className="opacity-70" />Plain text
+              </DD.Item>
+              <DD.Item onClick={exportAsHtml}>
+                <Code size={14} className="opacity-70" />HTML
+              </DD.Item>
+            </DD.Content>
+          </DD.Root>
 
           <DD.Root>
             <DD.Trigger asChild>
@@ -302,14 +437,33 @@ export function NoteEditor({ note }: NoteEditorProps) {
                     <Link size={12} className="text-text-muted flex-shrink-0" />
                     <span className="text-[10px] text-text-muted truncate select-all">{shareUrl}</span>
                   </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyShareLink();
+                      }}
+                      className="flex items-center justify-center gap-1.5 py-1.5 bg-accent text-white rounded-xl text-xs font-bold hover:bg-accent-hover transition-colors"
+                    >
+                      <Copy size={12} /> Copy
+                    </button>
+                    <a
+                      href={shareUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-1.5 py-1.5 bg-surface-active text-text-secondary border border-surface-border rounded-xl text-xs font-bold hover:text-text-primary hover:bg-surface-hover transition-colors"
+                    >
+                      <ExternalLink size={12} /> Open
+                    </a>
+                  </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      copyShareLink();
+                      setShowQrModal(true);
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-1.5 bg-accent text-white rounded-xl text-xs font-bold hover:bg-accent-hover transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2 bg-surface-active text-text-secondary border border-surface-border rounded-xl text-xs font-bold hover:text-text-primary hover:bg-surface-hover transition-colors"
                   >
-                    <Copy size={12} /> Copy Link
+                    <QrCode size={13} /> Show QR Code
                   </button>
                   <p className="text-[10px] text-center text-text-muted">Anyone with the link can view this note.</p>
                 </div>
@@ -339,6 +493,35 @@ export function NoteEditor({ note }: NoteEditorProps) {
         variant="danger"
         onConfirm={handleDelete}
       />
+
+      <Modal
+        open={showQrModal}
+        onOpenChange={setShowQrModal}
+        title="Share QR Code"
+        description="Scan this code to open the shared note link."
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-full rounded-2xl bg-white p-4">
+            <img src={qrUrl} alt="QR code for shared note" className="mx-auto w-full max-w-[320px] aspect-square" />
+          </div>
+          <div className="grid w-full grid-cols-2 gap-2">
+            <button
+              onClick={copyShareLink}
+              className="flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-hover"
+            >
+              <Copy size={13} /> Copy
+            </button>
+            <a
+              href={shareUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 rounded-xl border border-surface-border bg-surface-active px-3 py-2 text-xs font-bold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <ExternalLink size={13} /> Open
+            </a>
+          </div>
+        </div>
+      </Modal>
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl px-6 py-4">
@@ -388,4 +571,57 @@ function ToolbarButton({ children, onClick, active, title, disabled }: { childre
 
 function Divider() {
   return <div className="w-px h-4 mx-1 flex-shrink-0" style={{ background: "var(--surface-border)" }} />;
+}
+
+function LiveViewers({ viewers }: { viewers: NoteViewer[] }) {
+  if (viewers.length === 0) return null;
+
+  const visible = viewers.slice(0, 3);
+  const overflow = viewers.length - visible.length;
+
+  return (
+    <div className="flex items-center gap-1.5 rounded-full border border-surface-border bg-surface px-2 py-1">
+      <Users size={12} className="text-emerald-400" />
+      <div className="flex -space-x-2">
+        {visible.map((viewer) => (
+          <div key={viewer.viewer_id} className="relative group/viewer">
+            <img
+              src={viewer.avatar || defaultUser}
+              alt={viewer.name}
+              className="h-6 w-6 rounded-full border-2 border-background bg-surface-active object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = defaultUser;
+              }}
+            />
+            <div className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl border border-surface-border bg-surface-elevated p-3 opacity-0 shadow-panel transition-opacity group-hover/viewer:opacity-100">
+              <div className="flex items-center gap-3">
+                <img
+                  src={viewer.avatar || defaultUser}
+                  alt={viewer.name}
+                  className="h-10 w-10 rounded-2xl border border-surface-border bg-surface-active object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = defaultUser;
+                  }}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-text-primary">{viewer.name}</p>
+                  {viewer.email ? (
+                    <p className="mt-0.5 truncate text-[11px] text-text-muted">{viewer.email}</p>
+                  ) : (
+                    <p className="mt-0.5 text-[11px] text-text-muted">Viewing this note</p>
+                  )}
+                  <p className="mt-1 text-[10px] font-semibold text-emerald-400">Live now</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {overflow > 0 && (
+          <div className="flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-surface-active px-1 text-[10px] font-bold text-text-secondary">
+            +{overflow}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

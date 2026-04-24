@@ -12,6 +12,13 @@ type LambdaEvent = {
   headers?: Record<string, string | undefined>
 }
 
+type PresenceViewer = {
+  viewer_id?: string
+  name?: string
+  email?: string
+  avatar?: string
+}
+
 const respond = (statusCode: number, body: unknown) => ({
   statusCode,
   headers: { 
@@ -33,15 +40,68 @@ export const handler = async (event: LambdaEvent) => {
       const publicPk = `USER#${queryStringParameters.u}`
       const result = await db.get(publicPk, `NOTE#${entityId}`)
       if (result.Item && result.Item.is_public) {
-        return respond(200, result.Item)
+        const profile = await db.get(publicPk, 'PROFILE')
+        return respond(200, {
+          ...result.Item,
+          owner_profile: profile.Item
+            ? {
+                name: profile.Item.name,
+                email: profile.Item.email,
+                avatar: profile.Item.avatar,
+              }
+            : undefined,
+        })
       }
+    }
+
+    if (httpMethod === 'POST' && path.startsWith('/presence/') && entityId && queryStringParameters?.u) {
+      const ownerPk = `USER#${queryStringParameters.u}`
+      const note = await db.get(ownerPk, `NOTE#${entityId}`)
+      if (!note.Item || !note.Item.is_public) return respond(404, { error: 'Note not available' })
+
+      const body = JSON.parse(event.body || '{}') as PresenceViewer
+      const token = extractToken(event)
+      let viewer: PresenceViewer = body
+
+      if (token) {
+        try {
+          const jwtUser = verifyJwt(token)
+          const viewerProfile = await db.get(`USER#${jwtUser.userId}`, 'PROFILE')
+          viewer = {
+            viewer_id: jwtUser.userId,
+            name: String(viewerProfile.Item?.name || jwtUser.name || 'Viewer'),
+            email: String(viewerProfile.Item?.email || jwtUser.email || ''),
+            avatar: typeof viewerProfile.Item?.avatar === 'string' ? viewerProfile.Item.avatar : undefined,
+          }
+        } catch {
+          viewer = body
+        }
+      }
+
+      const viewerId = viewer.viewer_id?.trim()
+      if (!viewerId) return respond(400, { error: 'Missing viewer id' })
+
+      const now = new Date()
+      await db.put({
+        PK: ownerPk,
+        SK: `PRESENCE#${entityId}#${viewerId}`,
+        note_id: entityId,
+        viewer_id: viewerId,
+        name: viewer.name?.trim() || 'Guest Viewer',
+        email: viewer.email || '',
+        avatar: viewer.avatar || '',
+        last_seen_at: now.toISOString(),
+        expires_at: Math.floor(now.getTime() / 1000) + 45,
+      })
+
+      return respond(200, { success: true })
     }
 
     // Auth check
     const token = extractToken(event)
     if (!token) return respond(401, { error: 'Unauthorized' })
     
-    const { userId } = verifyJwt(token)
+    const { userId, email, name } = verifyJwt(token)
     const PK = `USER#${userId}`
 
     // ─── ACCOUNT RESET ───
@@ -49,16 +109,30 @@ export const handler = async (event: LambdaEvent) => {
       try {
         const result = await db.query(PK, undefined, true) // Consistent read for base table
         const items = result.Items || []
+        const existingProfile = items.find((item) => item.SK === 'PROFILE')
+        const now = new Date().toISOString()
         
         // 1. Batch delete everything (optimized)
         if (items.length > 0) {
           await db.batchDelete(PK, items.map(i => i.SK))
         }
         
-        // 2. Re-seed default data from shared utility
+        // 2. Re-seed default data from shared utility while preserving profile/preferences
         const { categories, tags, welcomeNote } = getDefaultData(userId)
+        const profile = {
+          PK,
+          SK: 'PROFILE',
+          email,
+          name,
+          accent_color: '#818CF8',
+          theme: 'dark',
+          created_at: now,
+          ...existingProfile,
+          updated_at: now,
+        }
         
         await Promise.all([
+          db.put(profile),
           ...categories.map(cat => db.put(cat)),
           ...tags.map(t => db.put(t)),
           db.put(welcomeNote)
@@ -108,7 +182,13 @@ export const handler = async (event: LambdaEvent) => {
     if (path.startsWith('/tags')) {
       if (httpMethod === 'GET') {
         const result = await db.query(PK)
-        return respond(200, (result.Items || []).filter(i => i.SK.startsWith('TAG#')))
+        const tagsByName = new Map<string, Record<string, unknown>>()
+        for (const item of result.Items || []) {
+          if (item.SK.startsWith('TAG#') && typeof item.name === 'string') {
+            tagsByName.set(item.name, item)
+          }
+        }
+        return respond(200, Array.from(tagsByName.values()))
       }
       if (httpMethod === 'POST') {
         const dto = JSON.parse(event.body || '{}')
@@ -121,13 +201,56 @@ export const handler = async (event: LambdaEvent) => {
       }
       if (httpMethod === 'DELETE') {
         if (!entityId || isMalformedId) return respond(400, { error: 'Invalid ID' })
-        await db.delete(PK, `TAG#${entityId}`)
+        const result = await db.query(PK)
+        const matchingTags = (result.Items || []).filter((item) =>
+          item.SK.startsWith('TAG#') && item.name === entityId
+        )
+        await Promise.all([
+          db.delete(PK, `TAG#${entityId}`),
+          ...matchingTags
+            .filter((item) => item.SK !== `TAG#${entityId}`)
+            .map((item) => db.delete(PK, item.SK)),
+        ])
         return respond(200, { success: true })
       }
     }
 
     // ─── NOTES ───
     if (path.startsWith('/notes')) {
+      if (httpMethod === 'GET' && path.endsWith('/viewers') && entityId) {
+        const note = await db.get(PK, `NOTE#${entityId}`)
+        if (!note.Item) return respond(404, { error: 'Note not found' })
+
+        const now = Math.floor(Date.now() / 1000)
+        const result = await db.query(PK)
+        const presenceItems = (result.Items || []).filter((item) =>
+          item.SK.startsWith(`PRESENCE#${entityId}#`) &&
+          item.viewer_id !== userId &&
+          typeof item.expires_at === 'number' &&
+          item.expires_at > now
+        )
+        const expiredItems = (result.Items || []).filter((item) =>
+          item.SK.startsWith(`PRESENCE#${entityId}#`) &&
+          typeof item.expires_at === 'number' &&
+          item.expires_at <= now
+        )
+
+        if (expiredItems.length > 0) {
+          await db.batchDelete(PK, expiredItems.map((item) => item.SK))
+        }
+
+        return respond(200, presenceItems
+          .sort((a, b) => String(b.last_seen_at).localeCompare(String(a.last_seen_at)))
+          .map((item) => ({
+            viewer_id: item.viewer_id,
+            name: item.name || 'Guest Viewer',
+            email: item.email || '',
+            avatar: item.avatar || '',
+            last_seen_at: item.last_seen_at,
+          }))
+        )
+      }
+
       if (httpMethod === 'GET' && !entityId) {
         const result = await db.query(PK, 'created_at-index')
         const notes = (result.Items || []).filter((item) => item.SK.startsWith('NOTE#'))
@@ -195,5 +318,3 @@ export const handler = async (event: LambdaEvent) => {
     return respond(500, { error: 'Internal server error' })
   }
 }
-
-

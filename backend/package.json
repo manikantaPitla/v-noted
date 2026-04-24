@@ -1,7 +1,7 @@
 {
-  "name": "vnoted-backend",
+  "name": "v-noted",
   "version": "1.0.0",
-  "description": "Vnoted app backend — AWS Lambda functions",
+  "description": "v-noted app backend — AWS Lambda functions",
   "author": "Manikanta Pitla",
   "private": true,
   "scripts": {

@@ -1,28 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* ── PREMIUM DARK THEME (Default) ── */
+  /* ── PREMIUM DARK THEME (Zinc/Orange) ── */
   :root {
-    --bg: #0D0D0F;
-    --bg-secondary: #141416;
-    --bg-tertiary: #1A1A1E;
-    --bg-elevated: #1F1F23;
+    --bg: #09090b;
+    --bg-secondary: #0c0c0e;
+    --bg-tertiary: #121214;
+    --bg-elevated: #18181b;
     
-    --surface: #1E1E22;
-    --surface-hover: #252529;
-    --surface-active: #2A2A2F;
-    --surface-border: #2E2E34;
-    --surface-elevated: #1F1F23;
+    --surface: #18181b;
+    --surface-hover: #27272a;
+    --surface-active: #3f3f46;
+    --surface-border: #27272a;
+    --surface-elevated: #18181b;
 
-    --text-primary: #F3F4F6;
-    --text-secondary: #9CA3AF;
-    --text-muted: #6B7280;
-    --text-placeholder: #374151;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-placeholder: #52525b;
 
     --accent: #ff3d00;
-    --accent-rgb: 129, 140, 248;
+    --accent-rgb: 255, 61, 0;
     
     /* Dynamic shades based on --accent-rgb */
     --accent-hover: color-mix(in srgb, var(--accent), white 20%);

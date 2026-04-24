@@ -6,6 +6,7 @@ import TaskItem from '@tiptap/extension-task-item'
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { common, createLowlight } from 'lowlight'
+import { serializeProseMirrorFragmentToPlainText } from '@/features/notes/utils/note.utils'
 
 const lowlight = createLowlight(common)
 
@@ -38,4 +39,5 @@ export const tiptapEditorProps = {
     class: 'tiptap-editor focus:outline-none',
     spellcheck: 'true',
   },
+  clipboardTextSerializer: serializeProseMirrorFragmentToPlainText,
 }

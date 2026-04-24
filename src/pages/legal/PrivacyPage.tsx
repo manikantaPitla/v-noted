@@ -24,7 +24,7 @@ export function PrivacyPage() {
       
       <div className="space-y-10 text-text-secondary leading-relaxed text-sm">
         <section>
-          <p className="text-base font-medium text-text-primary/90">Your privacy is at the core of Vnoted. We believe your notes are personal, and our policy reflects our commitment to keeping them that way.</p>
+          <p className="text-base font-medium text-text-primary/90">Your privacy is at the core of v-noted. We believe your notes are personal, and our policy reflects our commitment to keeping them that way.</p>
         </section>
 
         <div className="grid md:grid-cols-3 gap-6 py-8">
@@ -57,7 +57,7 @@ export function PrivacyPage() {
 
         <section>
           <h2 className="text-base font-semibold text-text-primary mb-3">2. How We Use Data</h2>
-          <p>We use your data solely to provide, maintain, and improve the Vnoted application. Your email is used for account identification and critical service updates only.</p>
+          <p>We use your data solely to provide, maintain, and improve the v-noted application. Your email is used for account identification and critical service updates only.</p>
         </section>
 
         <section>
