@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useMemo } from 'react'
+import { usePreferences } from '@/store/preferences.store'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -18,21 +19,36 @@ export function useTheme() {
   return useContext(ThemeContext)
 }
 
-function applyTheme() {
-  const root = document.documentElement
-  root.classList.add('dark')
-  root.classList.remove('light')
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = 'dark'
-  const resolvedTheme = 'dark'
-  const setTheme = () => {}
+  const { theme, setTheme } = usePreferences()
 
-  // Always enforce dark on mount
+  const resolvedTheme = useMemo(() => {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return theme as 'light' | 'dark'
+  }, [theme])
+
   useEffect(() => {
-    applyTheme()
-  }, [])
+    const root = document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(resolvedTheme)
+  }, [resolvedTheme])
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (theme !== 'system') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      const root = document.documentElement
+      root.classList.remove('light', 'dark')
+      root.classList.add(mediaQuery.matches ? 'dark' : 'light')
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [theme])
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

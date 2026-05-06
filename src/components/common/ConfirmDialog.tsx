@@ -1,31 +1,22 @@
-import * as Dialog from '@radix-ui/react-dialog'
-import { AlertTriangle } from 'lucide-react'
+import * as Dialog from "@radix-ui/react-dialog";
+import { AlertTriangle } from "lucide-react";
 
 interface ConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description: string
-  confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'danger' | 'default'
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: "danger" | "default";
+  onConfirm: () => void;
 }
 
-export function ConfirmDialog({
-  open,
-  onOpenChange,
-  title,
-  description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
-  variant = 'danger',
-  onConfirm,
-}: ConfirmDialogProps) {
+export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Confirm", cancelLabel = "Cancel", variant = "danger", onConfirm }: ConfirmDialogProps) {
   const handleConfirm = () => {
-    onConfirm()
-    onOpenChange(false)
-  }
+    onConfirm();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -39,49 +30,46 @@ export function ConfirmDialog({
         >
           <div className="opacity-0 group-data-[state=open]:opacity-100 bg-surface-elevated border border-surface-border rounded-2xl shadow-panel p-6 group-data-[state=open]:animate-pop-in">
             <div className="flex gap-4">
-            {variant === 'danger' && (
-              <div className="w-9 h-9 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle size={16} className="text-destructive" />
+              {variant === "danger" && (
+                <div className="w-9 h-9 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle size={16} className="text-destructive" />
+                </div>
+              )}
+              <div className="flex-1">
+                <Dialog.Title className="text-sm font-semibold text-text-primary mb-1">{title}</Dialog.Title>
+                <Dialog.Description className="text-xs text-text-secondary leading-relaxed">{description}</Dialog.Description>
               </div>
-            )}
-            <div className="flex-1">
-              <Dialog.Title className="text-sm font-semibold text-text-primary mb-1">
-                {title}
-              </Dialog.Title>
-              <Dialog.Description className="text-xs text-text-secondary leading-relaxed">
-                {description}
-              </Dialog.Description>
             </div>
-          </div>
 
-          <div className="flex gap-2 justify-end mt-5">
-            <button
-              onClick={() => onOpenChange(false)}
-              className="
+            <div className="flex gap-2 justify-end mt-5">
+              <button
+                onClick={() => onOpenChange(false)}
+                className="
                 px-4 py-2 text-xs font-medium rounded-xl
                 text-text-secondary bg-surface-hover border border-surface-border
                 hover:text-text-primary transition-colors
               "
-            >
-              {cancelLabel}
-            </button>
-            <button
-              id="confirm-dialog-btn"
-              onClick={handleConfirm}
-              className={`
-                px-4 py-2 text-xs font-semibold rounded-xl transition-colors
-                ${variant === 'danger'
-                  ? 'bg-destructive/90 hover:bg-destructive text-white'
-                  : 'bg-accent hover:bg-accent-hover text-white'
+              >
+                {cancelLabel}
+              </button>
+              <button
+                id="confirm-dialog-btn"
+                onClick={handleConfirm}
+                className={`
+                px-4 py-2 text-xs font-bold rounded-xl transition-all duration-200
+                ${
+                  variant === "danger"
+                    ? "bg-destructive/10 text-destructive hover:bg-destructive hover:text-white"
+                    : "bg-accent text-white hover:bg-accent-hover"
                 }
               `}
-            >
-              {confirmLabel}
-            </button>
-          </div>
+              >
+                {confirmLabel}
+              </button>
+            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  )
+  );
 }

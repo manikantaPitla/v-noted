@@ -8,8 +8,8 @@ interface PreferencesStore {
   defaultCategory: string
   setDefaultCategory: (cat: string) => void
   
-  theme: 'dark' | 'light'
-  setTheme: (t: 'dark' | 'light') => void
+  theme: 'dark' | 'light' | 'system'
+  setTheme: (t: 'dark' | 'light' | 'system') => void
 }
 
 export const usePreferences = create<PreferencesStore>()(
@@ -21,7 +21,7 @@ export const usePreferences = create<PreferencesStore>()(
       defaultCategory: '',
       setDefaultCategory: (cat) => set({ defaultCategory: cat }),
 
-      theme: 'dark',
+      theme: 'system',
       setTheme: (t) => set({ theme: t }),
     }),
     { name: 'v_noted_preferences' }

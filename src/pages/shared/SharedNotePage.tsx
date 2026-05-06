@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useEditor, EditorContent } from '@tiptap/react'
-import { getTiptapExtensions, tiptapEditorProps } from '@/lib/tiptap'
-import { notesApi } from '@/features/notes/api/notes.api'
-import { Note } from '@/features/notes/types/note.types'
-import { formatFullDate } from '@/utils/formatDate'
-import { FileText, Loader2, Globe } from 'lucide-react'
-import { useAuth } from '@/features/auth/hooks/useAuth'
-import { ProfileDropdown } from '@/features/auth/components/ProfileDropdown'
-import { defaultUser } from '@/assets/images'
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { getTiptapExtensions, tiptapEditorProps } from "@/lib/tiptap";
+import { notesApi } from "@/features/notes/api/notes.api";
+import { Note } from "@/features/notes/types/note.types";
+import { formatFullDate } from "@/utils/formatDate";
+import { FileText, Loader2, Globe } from "lucide-react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { ProfileDropdown } from "@/features/auth/components/ProfileDropdown";
+import { defaultUser } from "@/assets/images";
 
 export function SharedNotePage() {
-  const { userId, noteId } = useParams()
-  const navigate = useNavigate()
-  const [note, setNote] = useState<Note | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const { isAuthenticated, user } = useAuth()
+  const { userId, noteId } = useParams();
+  const navigate = useNavigate();
+  const [note, setNote] = useState<Note | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
 
   const editor = useEditor({
     extensions: getTiptapExtensions(),
@@ -29,41 +29,41 @@ export function SharedNotePage() {
     },
     editable: false,
     content: null,
-  })
+  });
 
   useEffect(() => {
     async function loadNote() {
-      if (!userId || !noteId) return
+      if (!userId || !noteId) return;
       try {
-        const data = await notesApi.getShared(noteId, userId)
-        setNote(data)
-        editor?.commands.setContent(data.content_json)
+        const data = await notesApi.getShared(noteId, userId);
+        setNote(data);
+        editor?.commands.setContent(data.content_json);
       } catch (err) {
-        console.error('Failed to load shared note:', err)
-        setError('This note is private or does not exist.')
+        console.error("Failed to load shared note:", err);
+        setError("This note is private or does not exist.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-    loadNote()
-  }, [userId, noteId, editor])
+    loadNote();
+  }, [userId, noteId, editor]);
 
   useEffect(() => {
-    if (!userId || !noteId || !note) return
+    if (!userId || !noteId || !note) return;
 
     const getGuestViewer = () => {
-      const key = 'v_noted_guest_viewer'
-      const stored = localStorage.getItem(key)
-      if (stored) return JSON.parse(stored) as { viewer_id: string; name: string }
+      const key = "v_noted_guest_viewer";
+      const stored = localStorage.getItem(key);
+      if (stored) return JSON.parse(stored) as { viewer_id: string; name: string };
 
-      const suffix = Math.random().toString(36).slice(2, 6).toUpperCase()
+      const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
       const guest = {
         viewer_id: `guest-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}`,
         name: `Guest ${suffix}`,
-      }
-      localStorage.setItem(key, JSON.stringify(guest))
-      return guest
-    }
+      };
+      localStorage.setItem(key, JSON.stringify(guest));
+      return guest;
+    };
 
     const viewer = user
       ? {
@@ -72,18 +72,18 @@ export function SharedNotePage() {
           email: user.email,
           avatar: user.avatar,
         }
-      : getGuestViewer()
+      : getGuestViewer();
 
     const heartbeat = () => {
       notesApi.heartbeatPresence(noteId, userId, viewer).catch((err) => {
-        console.warn('Failed to update viewer presence:', err)
-      })
-    }
+        console.warn("Failed to update viewer presence:", err);
+      });
+    };
 
-    heartbeat()
-    const interval = window.setInterval(heartbeat, 15000)
-    return () => window.clearInterval(interval)
-  }, [userId, noteId, note, user])
+    heartbeat();
+    const interval = window.setInterval(heartbeat, 15000);
+    return () => window.clearInterval(interval);
+  }, [userId, noteId, note, user]);
 
   if (isLoading) {
     return (
@@ -91,7 +91,7 @@ export function SharedNotePage() {
         <Loader2 className="w-6 h-6 text-accent animate-spin" />
         <span className="text-sm text-text-muted">Loading...</span>
       </div>
-    )
+    );
   }
 
   return (
@@ -112,7 +112,7 @@ export function SharedNotePage() {
             <ProfileDropdown />
           ) : (
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="flex items-center gap-1.5 text-xs font-bold text-accent hover:bg-accent/10 transition-all px-4 py-1.5 rounded-xl border border-accent/20"
             >
               Login
@@ -125,33 +125,26 @@ export function SharedNotePage() {
       <main className="flex-1 overflow-y-auto">
         {!note || error ? (
           <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-            <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-surface border border-surface-border shadow-soft mb-6">
+            <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-surface border border-surface-border mb-6">
               <Globe size={24} className="text-text-muted" />
             </div>
             <h1 className="text-xl font-bold text-text-primary mb-2">Note Not Available</h1>
-            <p className="text-sm text-text-muted max-w-xs mb-8">{error || 'This note is private or does not exist.'}</p>
-            <button
-              onClick={() => navigate('/')}
-              className="px-6 py-2 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-all"
-            >
+            <p className="text-sm text-text-muted max-w-xs mb-8">{error || "This note is private or does not exist."}</p>
+            <button onClick={() => navigate("/")} className="px-6 py-2 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-all">
               Go to Home
             </button>
           </div>
         ) : (
           <div className="max-w-3xl mx-auto px-6 py-10">
-            <h1 className="text-3xl font-bold text-text-primary mb-4 tracking-tight">
-              {note.title || 'Untitled Note'}
-            </h1>
-            
+            <h1 className="text-3xl font-bold text-text-primary mb-4 tracking-tight">{note.title || "Untitled Note"}</h1>
+
             <div className="flex items-center gap-2 mb-8">
               <span className="text-xs text-text-muted">{formatFullDate(note.updated_at)}</span>
               {note.owner_profile?.name && (
                 <>
                   <span className="text-xs text-text-muted">by</span>
                   <div className="relative group/owner">
-                    <button className="text-xs font-semibold text-accent hover:underline">
-                      {note.owner_profile.name}
-                    </button>
+                    <button className="text-xs font-semibold text-accent hover:underline">{note.owner_profile.name}</button>
                     <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 w-64 rounded-2xl border border-surface-border bg-surface-elevated p-3 opacity-0 shadow-panel transition-opacity group-hover/owner:opacity-100">
                       <div className="flex items-center gap-3">
                         <img
@@ -159,14 +152,12 @@ export function SharedNotePage() {
                           alt={note.owner_profile.name}
                           className="h-10 w-10 rounded-2xl border border-surface-border bg-surface-active"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = defaultUser
+                            (e.target as HTMLImageElement).src = defaultUser;
                           }}
                         />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-bold text-text-primary">{note.owner_profile.name}</p>
-                          {note.owner_profile.email && (
-                            <p className="mt-0.5 truncate text-[11px] text-text-muted">{note.owner_profile.email}</p>
-                          )}
+                          {note.owner_profile.email && <p className="mt-0.5 truncate text-[11px] text-text-muted">{note.owner_profile.email}</p>}
                         </div>
                       </div>
                     </div>
@@ -189,5 +180,5 @@ export function SharedNotePage() {
         </p>
       </footer>
     </div>
-  )
+  );
 }

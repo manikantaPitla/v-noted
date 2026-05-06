@@ -23,3 +23,7 @@ Thumbs.db
 
 # Temp
 prompt.txt
+
+# Graphify
+graphify-out/
+.agents/

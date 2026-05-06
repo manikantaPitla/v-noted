@@ -40,25 +40,29 @@ export function TagEditor({ note }: { note: Note }) {
         </span>
       ))}
 
-      <div className="relative">
+      <div 
+        className="relative"
+        onMouseEnter={() => setShowSuggestions(true)}
+        onMouseLeave={() => setShowSuggestions(false)}
+      >
         {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full left-0 mt-1 z-30 bg-surface-elevated border border-surface-border rounded-xl shadow-panel py-1 min-w-[130px] animate-pop-in">
-            {suggestions.map((s) => (
-              <button
-                key={s}
-                onMouseDown={() => addNoteTag(s)}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
-              >
-                <Tag size={10} />#{s}
-              </button>
-            ))}
+          <div className="absolute top-full left-0 pt-1 z-30 animate-pop-in">
+            <div className="bg-surface-elevated border border-surface-border rounded-xl shadow-panel py-1 min-w-[130px]">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  onMouseDown={() => addNoteTag(s)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                >
+                  <Tag size={10} />#{s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         
         <button
           onClick={() => setShowAddModal(true)}
-          onMouseEnter={() => setShowSuggestions(true)}
-          onMouseLeave={() => setShowSuggestions(false)}
           className="tag-pill text-text-muted hover:text-text-primary"
         >
           <Plus size={9} />Add tag

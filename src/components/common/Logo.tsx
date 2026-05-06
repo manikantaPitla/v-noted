@@ -8,7 +8,7 @@ export function Logo({ variant = 'dashboard' }: LogoProps) {
   if (variant === 'login-desktop') {
     return (
       <div className="flex items-end mb-14 group select-none cursor-default">
-        <span className="text-[4.5rem] font-['Caveat',_cursive] font-bold text-white tracking-wide leading-none drop-shadow-md">v-noted</span>
+        <span className="text-[4.5rem] font-['Caveat',_cursive] font-bold text-text-primary tracking-wide leading-none drop-shadow-md">v-noted</span>
         <div className="relative -translate-y-5 -translate-x-1.5 transition-transform duration-500 group-hover:-translate-y-6 group-hover:translate-x-0 group-hover:rotate-12">
           {/* Custom Image quill pen tinted with accent */}
           <div
@@ -31,7 +31,7 @@ export function Logo({ variant = 'dashboard' }: LogoProps) {
   if (variant === 'login-mobile') {
     return (
       <div className="flex items-end mb-12 lg:hidden group select-none cursor-default relative z-10">
-        <span className="text-[3.5rem] font-['Caveat',_cursive] font-bold text-white tracking-wide leading-none drop-shadow-md">v-noted</span>
+        <span className="text-[3.5rem] font-['Caveat',_cursive] font-bold text-text-primary tracking-wide leading-none drop-shadow-md">v-noted</span>
         <div className="relative -translate-y-4 -translate-x-1 transition-transform duration-500 group-hover:-translate-y-5 group-hover:translate-x-0 group-hover:rotate-12">
           <div
             className="bg-accent rotate-[-15deg] w-[36px] h-[36px]"

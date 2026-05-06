@@ -48,6 +48,7 @@ import {
   Minus,
   Undo,
   Redo,
+  X,
 } from "lucide-react";
 import * as DD from "@/components/ui/dropdown-menu";
 
@@ -94,20 +95,20 @@ export function NoteEditor({ note }: NoteEditorProps) {
       try {
         const textArea = document.createElement("textarea");
         textArea.value = shareUrl;
-        
+
         // Ensure textarea is off-screen but in DOM
         textArea.style.position = "fixed";
         textArea.style.left = "-9999px";
         textArea.style.top = "0";
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
-        
+
         textArea.focus();
         textArea.select();
-        
+
         const successful = document.execCommand("copy");
         document.body.removeChild(textArea);
-        
+
         if (successful) {
           success("Link copied to clipboard");
         } else {
@@ -142,10 +143,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
 
   const buildExportHtml = () => {
     const body = editor?.getHTML() || "";
-    const escapedTitle = getExportTitle()
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    const escapedTitle = getExportTitle().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     return `<!doctype html>
 <html>
@@ -212,7 +210,8 @@ export function NoteEditor({ note }: NoteEditorProps) {
     }
 
     const loadViewers = () => {
-      notesApi.getViewers(note.id)
+      notesApi
+        .getViewers(note.id)
         .then(setViewers)
         .catch((err) => console.warn("Failed to load note viewers:", err));
     };
@@ -304,98 +303,125 @@ export function NoteEditor({ note }: NoteEditorProps) {
         <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")} title="Code">
           <Code size={14} />
         </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHighlight().run()} active={editor.isActive("highlight")} title="Highlight">
-          <Highlighter size={14} />
-        </ToolbarButton>
-        <Divider />
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive("heading", { level: 1 })} title="H1">
-          <Heading1 size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })} title="H2">
-          <Heading2 size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })} title="H3">
-          <Heading3 size={14} />
-        </ToolbarButton>
-        <Divider />
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Bullet List">
-          <List size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Numbered List">
-          <ListOrdered size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleTaskList().run()} active={editor.isActive("taskList")} title="Task List">
-          <CheckSquare size={14} />
-        </ToolbarButton>
-        <Divider />
-        <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title="Quote">
-          <Quote size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")} title="Code Block">
-          <Code2 size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">
-          <Minus size={14} />
-        </ToolbarButton>
-        <Divider />
-        <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Undo" disabled={!editor.can().undo()}>
-          <Undo size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().redo().run()} title="Redo" disabled={!editor.can().redo()}>
-          <Redo size={14} />
-        </ToolbarButton>
-
-        <div className="ml-auto flex items-center gap-2">
-          <LiveViewers viewers={viewers} />
-
-          {saveStatus === "saving" && (
-            <span className="flex items-center gap-1.5 text-xs animate-pulse-soft" style={{ color: "var(--text-muted)" }}>
-              <Clock size={12} />
-              Saving…
-            </span>
-          )}
-          {saveStatus === "saved" && (
-            <span className="flex items-center gap-1.5 text-xs text-emerald-400 animate-fade-in">
-              <Check size={12} />
-              Saved
-            </span>
-          )}
-          {!autoSave && (
-            <button
-              onClick={handleManualSave}
-              className="px-3 py-1 rounded-lg text-xs font-medium border transition-all"
-              style={{ borderColor: "var(--surface-border)", color: "var(--text-secondary)", background: "var(--surface-hover)" }}
-            >
-              Save
-            </button>
-          )}
-
           <DD.Root>
             <DD.Trigger asChild>
               <button
-                className="p-1 rounded-lg transition-all duration-150 data-[state=open]:bg-accent/10 data-[state=open]:text-accent text-text-muted hover:text-text-primary hover:bg-surface-active"
-                title="Export note"
+                className={`p-1 rounded-lg transition-all duration-150 ${editor.isActive("highlight") ? "bg-accent/10 text-accent" : "text-text-muted hover:text-text-primary hover:bg-surface-active"}`}
+                title="Highlight text"
               >
-                <Download size={14} />
+                <Highlighter size={14} />
               </button>
             </DD.Trigger>
-
-            <DD.Content align="end" sideOffset={12} className="w-48">
-              <DD.Label>Download</DD.Label>
-              <DD.Item onClick={exportAsPdf}>
-                <Printer size={14} className="opacity-70" />PDF
-              </DD.Item>
-              <DD.Item onClick={exportAsWord}>
-                <FileType size={14} className="opacity-70" />Word
-              </DD.Item>
-              <DD.Item onClick={exportAsText}>
-                <FileText size={14} className="opacity-70" />Plain text
-              </DD.Item>
-              <DD.Item onClick={exportAsHtml}>
-                <Code size={14} className="opacity-70" />HTML
+            <DD.Content align="start" sideOffset={12} className="w-40 p-1">
+              <div className="grid grid-cols-5 gap-1 p-1">
+                <ColorButton color="#fef08a" onClick={() => editor.chain().focus().setHighlight({ color: "#fef08a" }).run()} />
+                <ColorButton color="#bbf7d0" onClick={() => editor.chain().focus().setHighlight({ color: "#bbf7d0" }).run()} />
+                <ColorButton color="#bfdbfe" onClick={() => editor.chain().focus().setHighlight({ color: "#bfdbfe" }).run()} />
+                <ColorButton color="#e9d5ff" onClick={() => editor.chain().focus().setHighlight({ color: "#e9d5ff" }).run()} />
+                <ColorButton color="#fecaca" onClick={() => editor.chain().focus().setHighlight({ color: "#fecaca" }).run()} />
+              </div>
+              <DD.Separator />
+              <DD.Item onClick={() => editor.chain().focus().unsetHighlight().run()}>
+                <X size={12} className="opacity-70" />
+                Clear Highlight
               </DD.Item>
             </DD.Content>
           </DD.Root>
+
+          <Divider />
+          <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive("heading", { level: 1 })} title="H1">
+            <Heading1 size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })} title="H2">
+            <Heading2 size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })} title="H3">
+            <Heading3 size={14} />
+          </ToolbarButton>
+          <Divider />
+          <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Bullet List">
+            <List size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Numbered List">
+            <ListOrdered size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().toggleTaskList().run()} active={editor.isActive("taskList")} title="Task List">
+            <CheckSquare size={14} />
+          </ToolbarButton>
+          <Divider />
+          <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")} title="Quote">
+            <Quote size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")} title="Code Block">
+            <Code2 size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">
+            <Minus size={14} />
+          </ToolbarButton>
+          <Divider />
+          <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Undo" disabled={!editor.can().undo()}>
+            <Undo size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => editor.chain().focus().redo().run()} title="Redo" disabled={!editor.can().redo()}>
+            <Redo size={14} />
+          </ToolbarButton>
+          <Divider />
+
+          <div className="ml-auto flex items-center gap-2">
+            <LiveViewers viewers={viewers} />
+
+            {saveStatus === "saving" && (
+              <span className="flex items-center gap-1.5 text-xs animate-pulse-soft" style={{ color: "var(--text-muted)" }}>
+                <Clock size={12} />
+                Saving…
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="flex items-center gap-1.5 text-xs text-emerald-400 animate-fade-in">
+                <Check size={12} />
+                Saved
+              </span>
+            )}
+            {!autoSave && (
+              <button
+                onClick={handleManualSave}
+                className="px-3 py-1 rounded-lg text-xs font-medium border transition-all"
+                style={{ borderColor: "var(--surface-border)", color: "var(--text-secondary)", background: "var(--surface-hover)" }}
+              >
+                Save
+              </button>
+            )}
+
+            <DD.Root>
+              <DD.Trigger asChild>
+                <button
+                  className="p-1 rounded-lg transition-all duration-150 data-[state=open]:bg-accent/10 data-[state=open]:text-accent text-text-muted hover:text-text-primary hover:bg-surface-active"
+                  title="Export note"
+                >
+                  <Download size={14} />
+                </button>
+              </DD.Trigger>
+
+              <DD.Content align="end" sideOffset={12} className="w-48">
+                <DD.Label>Download</DD.Label>
+                <DD.Item onClick={exportAsPdf}>
+                  <Printer size={14} className="opacity-70" />
+                  PDF
+                </DD.Item>
+                <DD.Item onClick={exportAsWord}>
+                  <FileType size={14} className="opacity-70" />
+                  Word
+                </DD.Item>
+                <DD.Item onClick={exportAsText}>
+                  <FileText size={14} className="opacity-70" />
+                  Plain text
+                </DD.Item>
+                <DD.Item onClick={exportAsHtml}>
+                  <Code size={14} className="opacity-70" />
+                  HTML
+                </DD.Item>
+              </DD.Content>
+            </DD.Root>
 
           <DD.Root>
             <DD.Trigger asChild>
@@ -415,7 +441,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-2 rounded-xl bg-surface-active border border-surface-border mb-4">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-background border border-surface-border mb-4">
                 <div className="flex items-center gap-2">
                   <Globe size={14} className="text-text-muted" />
                   <span className="text-[11px] font-medium text-text-secondary">Link Sharing</span>
@@ -425,9 +451,17 @@ export function NoteEditor({ note }: NoteEditorProps) {
                     e.stopPropagation();
                     togglePublicSharing();
                   }}
-                  className={`relative inline-flex h-4 w-9 items-center rounded-full transition-colors ${note.is_public ? "bg-accent" : "bg-surface-active border border-surface-border"}`}
+                  className={`
+                    relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300
+                    ${note.is_public ? "bg-accent shadow-[0_0_8px_rgba(var(--accent-rgb),0.3)]" : "bg-surface-active border border-surface-border"}
+                  `}
                 >
-                  <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${note.is_public ? "translate-x-5" : "translate-x-1"}`} />
+                  <span
+                    className={`
+                      inline-block h-3.5 w-3.5 rounded-full bg-white shadow-md transition-transform duration-300
+                      ${note.is_public ? "translate-x-[22px]" : "translate-x-1"}
+                    `}
+                  />
                 </button>
               </div>
 
@@ -494,21 +528,13 @@ export function NoteEditor({ note }: NoteEditorProps) {
         onConfirm={handleDelete}
       />
 
-      <Modal
-        open={showQrModal}
-        onOpenChange={setShowQrModal}
-        title="Share QR Code"
-        description="Scan this code to open the shared note link."
-      >
+      <Modal open={showQrModal} onOpenChange={setShowQrModal} title="Share QR Code" description="Scan this code to open the shared note link.">
         <div className="flex flex-col items-center gap-4">
           <div className="w-full rounded-2xl bg-white p-4">
             <img src={qrUrl} alt="QR code for shared note" className="mx-auto w-full max-w-[320px] aspect-square" />
           </div>
           <div className="grid w-full grid-cols-2 gap-2">
-            <button
-              onClick={copyShareLink}
-              className="flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-hover"
-            >
+            <button onClick={copyShareLink} className="flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-hover">
               <Copy size={13} /> Copy
             </button>
             <a
@@ -605,11 +631,7 @@ function LiveViewers({ viewers }: { viewers: NoteViewer[] }) {
                 />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-text-primary">{viewer.name}</p>
-                  {viewer.email ? (
-                    <p className="mt-0.5 truncate text-[11px] text-text-muted">{viewer.email}</p>
-                  ) : (
-                    <p className="mt-0.5 text-[11px] text-text-muted">Viewing this note</p>
-                  )}
+                  {viewer.email ? <p className="mt-0.5 truncate text-[11px] text-text-muted">{viewer.email}</p> : <p className="mt-0.5 text-[11px] text-text-muted">Viewing this note</p>}
                   <p className="mt-1 text-[10px] font-semibold text-emerald-400">Live now</p>
                 </div>
               </div>
@@ -617,11 +639,22 @@ function LiveViewers({ viewers }: { viewers: NoteViewer[] }) {
           </div>
         ))}
         {overflow > 0 && (
-          <div className="flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-surface-active px-1 text-[10px] font-bold text-text-secondary">
-            +{overflow}
-          </div>
+          <div className="flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-surface-active px-1 text-[10px] font-bold text-text-secondary">+{overflow}</div>
         )}
       </div>
     </div>
+  );
+}
+
+function ColorButton({ color, onClick }: { color: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className="w-6 h-6 rounded-md border border-surface-border hover:scale-110 transition-transform"
+      style={{ backgroundColor: color }}
+    />
   );
 }

@@ -1,29 +1,29 @@
-import { useEffect, useRef } from 'react'
-import { Search, X, Command } from 'lucide-react'
-import { useSearch } from '@/features/search/hooks/useSearch'
-import { useKeyboard } from '@/hooks/useKeyboard'
-import { useUIStore } from '@/store/ui.store'
+import { useEffect, useRef } from "react";
+import { Search, X, Command } from "lucide-react";
+import { useSearch } from "@/features/search/hooks/useSearch";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { useUIStore } from "@/store/ui.store";
 
 export function SearchBar() {
-  const { searchQuery, setSearchQuery, clearSearch } = useSearch()
-  const isSearchOpen = useUIStore((s) => s.isSearchOpen)
-  const setIsSearchOpen = useUIStore((s) => s.setIsSearchOpen)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const { searchQuery, setSearchQuery, clearSearch } = useSearch();
+  const isSearchOpen = useUIStore((s) => s.isSearchOpen);
+  const setIsSearchOpen = useUIStore((s) => s.setIsSearchOpen);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useKeyboard({ key: 'k', ctrl: true }, () => {
-    setIsSearchOpen(true)
-    setTimeout(() => inputRef.current?.focus(), 50)
-  })
+  useKeyboard({ key: "k", ctrl: true }, () => {
+    setIsSearchOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  });
 
-  useKeyboard({ key: 'Escape' }, () => {
-    if (isSearchOpen) clearSearch()
-  })
+  useKeyboard({ key: "Escape" }, () => {
+    if (isSearchOpen) clearSearch();
+  });
 
   useEffect(() => {
     if (isSearchOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50)
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isSearchOpen])
+  }, [isSearchOpen]);
 
   return (
     <div className="relative flex-1 max-w-md">
@@ -32,13 +32,10 @@ export function SearchBar() {
           flex items-center gap-2.5 px-3.5 py-2
           bg-surface border rounded-xl
           transition-all duration-200
-          ${isSearchOpen || searchQuery
-            ? 'border-accent/40 bg-background shadow-soft ring-2 ring-accent/5'
-            : 'border-surface-border hover:border-surface-active hover:bg-surface-hover/50'
-          }
+          ${isSearchOpen || searchQuery ? "border-accent/40 bg-background ring-2 ring-accent/5" : "border-surface-border hover:border-surface-active hover:bg-surface-hover/50"}
         `}
       >
-        <Search size={15} className={`transition-colors flex-shrink-0 ${isSearchOpen || searchQuery ? 'text-accent' : 'text-text-muted'}`} />
+        <Search size={15} className={`transition-colors flex-shrink-0 ${isSearchOpen || searchQuery ? "text-accent" : "text-text-muted"}`} />
 
         <input
           ref={inputRef}
@@ -56,10 +53,7 @@ export function SearchBar() {
         />
 
         {searchQuery ? (
-          <button
-            onClick={clearSearch}
-            className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-active transition-colors"
-          >
+          <button onClick={clearSearch} className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-active transition-colors">
             <X size={14} strokeWidth={2.5} />
           </button>
         ) : (
@@ -71,5 +65,5 @@ export function SearchBar() {
         )}
       </div>
     </div>
-  )
+  );
 }

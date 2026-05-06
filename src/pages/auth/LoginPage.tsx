@@ -3,9 +3,12 @@ import { GoogleLoginButton } from "@/features/auth/components/GoogleLoginButton"
 import { Zap, Search, Shield } from "lucide-react";
 import { useRef, MouseEvent } from "react";
 import { Logo } from "@/components/common/Logo";
+import { useTheme } from "@/app/providers/ThemeProvider";
 
 export function LoginPage() {
   const pageRef = useRef<HTMLDivElement>(null);
+
+  const { resolvedTheme } = useTheme();
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!pageRef.current) return;
@@ -20,16 +23,20 @@ export function LoginPage() {
     <div ref={pageRef} onMouseMove={handleMouseMove} className="min-h-screen bg-background flex relative overflow-hidden group/page">
       {/* Global Interactive Mouse Glow */}
       <div
-        className="absolute inset-0 z-50 pointer-events-none opacity-0 group-hover/page:opacity-100 transition-opacity duration-500 mix-blend-screen"
+        className={`absolute inset-0 z-50 pointer-events-none opacity-0 group-hover/page:opacity-100 transition-opacity duration-500 ${
+          resolvedTheme === "dark" ? "mix-blend-screen" : "mix-blend-multiply"
+        }`}
         style={{
-          background: "radial-gradient(circle 250px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--accent-rgb), 0.15), transparent 100%)",
+          background: `radial-gradient(circle 250px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--accent-rgb), ${
+            resolvedTheme === "dark" ? "0.15" : "0.08"
+          }), transparent 100%)`,
         }}
       />
 
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[150px] pointer-events-none translate-x-1/3 -translate-y-1/3 z-0" />
 
       <div className="hidden lg:flex flex-col flex-1 relative overflow-hidden bg-background-secondary">
-        <div className="absolute inset-0 z-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik00MCAwSDB2NDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+')] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+        <div className="absolute inset-0 z-0 grid-pattern [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
 
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-accent/20 to-accent/5 blur-[120px] pointer-events-none animate-pulse-soft mix-blend-screen" />
         <div className="absolute top-2/3 left-1/4 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none mix-blend-screen" />

@@ -16,7 +16,7 @@ export function ProfileDropdown() {
       <DD.Trigger asChild>
         <button
           id="profile-dropdown-btn"
-          className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-surface-hover transition-all duration-200 outline-none border border-transparent hover:border-surface-border"
+          className="flex items-center gap-1.5 p-1 rounded-full hover:bg-surface-hover transition-all duration-200 outline-none border border-transparent hover:border-surface-border"
         >
           <img
             src={user?.avatar || defaultUser}
@@ -36,7 +36,7 @@ export function ProfileDropdown() {
             <img
               src={user?.avatar || defaultUser}
               alt={user?.name}
-              className="w-10 h-10 rounded-2xl bg-surface-active flex-shrink-0 border border-surface-border shadow-soft"
+              className="w-10 h-10 rounded-2xl bg-surface-active flex-shrink-0 border border-surface-border"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = defaultUser
               }}
