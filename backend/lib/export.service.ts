@@ -192,7 +192,7 @@ export class ExportService {
       }) as any;
     } else if (node.type === 'blockquote') {
       return new Paragraph({
-        children: [new TextRun({ text: this.getNodeText(node), italic: true, color: "666666" })],
+        children: [new TextRun({ text: this.getNodeText(node), italics: true, color: "666666" })],
         indent: { left: 720 },
         spacing: { before: 200, after: 200 },
       });
@@ -233,7 +233,6 @@ export class ExportService {
     } else if (node.type === 'codeBlock') {
       const text = this.getNodeText(node);
       doc.fontSize(10).font('Courier').fillColor('#374151').text(text, { 
-        background: '#f3f4f6',
         indent: 10
       });
       doc.font('Helvetica').fillColor('#111827'); // Reset
