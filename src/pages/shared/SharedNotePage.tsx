@@ -8,7 +8,7 @@ import { formatFullDate } from "@/utils/formatDate";
 import { FileText, Loader2, Globe } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ProfileDropdown } from "@/features/auth/components/ProfileDropdown";
-import { defaultUser } from "@/assets/images";
+import { userAvatar } from "@/assets/images";
 
 export function SharedNotePage() {
   const { userId, noteId } = useParams();
@@ -148,11 +148,11 @@ export function SharedNotePage() {
                     <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 w-64 rounded-2xl border border-surface-border bg-surface-elevated p-3 opacity-0 shadow-panel transition-opacity group-hover/owner:opacity-100">
                       <div className="flex items-center gap-3">
                         <img
-                          src={note.owner_profile.avatar || defaultUser}
+                          src={note.owner_profile.avatar || userAvatar}
                           alt={note.owner_profile.name}
                           className="h-10 w-10 rounded-2xl border border-surface-border bg-surface-active"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = defaultUser;
+                            (e.target as HTMLImageElement).src = userAvatar;
                           }}
                         />
                         <div className="min-w-0">

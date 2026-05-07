@@ -74,3 +74,38 @@ export function Separator() {
 export function Label({ children }: { children: React.ReactNode }) {
   return <DropdownMenu.Label className="px-3 py-1 text-[10px] font-semibold text-text-muted uppercase tracking-widest">{children}</DropdownMenu.Label>;
 }
+
+export const Sub = DropdownMenu.Sub;
+
+export function SubTrigger({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <DropdownMenu.SubTrigger
+      className={`
+        flex items-center gap-3 px-3 py-2.5 text-sm cursor-pointer outline-none
+        transition-colors duration-100 select-none
+        data-[highlighted]:bg-surface-hover text-text-secondary data-[highlighted]:text-text-primary
+        ${className}
+      `}
+    >
+      {children}
+    </DropdownMenu.SubTrigger>
+  );
+}
+
+export function SubContent({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <DropdownMenu.Portal>
+      <DropdownMenu.SubContent
+        className={`
+          z-50 bg-surface-elevated border border-surface-border
+          rounded-2xl shadow-panel outline-none overflow-hidden
+          min-w-[8rem] p-1
+          data-[state=open]:animate-pop-in data-[state=closed]:animate-fade-out
+          ${className}
+        `}
+      >
+        {children}
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Portal>
+  );
+}

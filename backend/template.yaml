@@ -195,6 +195,23 @@ Resources:
             Path: /tags/{id}
             Method: DELETE
 
+  # Reports Function
+  ReportsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/reports-bundle/
+      Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotesTable
+      Events:
+        ExportNote:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VNotedApi
+            Path: /notes/{id}/export
+            Method: ANY
+
   # Global CORS for errors (4XX/5XX)
   GatewayResponse4XX:
     Type: AWS::ApiGateway::GatewayResponse

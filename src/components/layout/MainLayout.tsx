@@ -16,7 +16,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Sidebar */}
       <div
         className={`
-          flex-shrink-0 transition-all duration-300 overflow-hidden
+          flex-shrink-0 transition-all duration-200 overflow-hidden
           ${sidebarCollapsed ? "w-0" : "w-60"}
           hidden lg:block
         `}

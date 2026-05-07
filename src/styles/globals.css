@@ -85,15 +85,47 @@
     background-color: var(--bg);
   }
 
+  /* ── INDUSTRY STANDARD THEME TRANSITION ── */
+  /* We target specific properties and use a smoother timing function */
+  body, header, aside, main, article, section, div, span, button, input, p, h1, h2, h3, h4, h5, h6 {
+    transition: 
+      background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      fill 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      stroke 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Prevent standard transition fighting during View Transition */
+  ::view-transition-group(root) * {
+    transition: none !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 9999; }
+
+  @keyframes reveal {
+    from { clip-path: circle(0% at var(--x, 50%) var(--y, 50%)); }
+    to { clip-path: circle(125% at var(--x, 50%) var(--y, 50%)); }
+  }
+
+  ::view-transition-new(root) {
+    animation: 600ms cubic-bezier(0.4, 0, 0.2, 1) reveal;
+  }
+
   body {
     background-color: var(--bg);
     color: var(--text-primary);
     font-family: "Inter", system-ui, sans-serif;
     min-height: 100vh;
     overflow: hidden;
-    transition:
-      background-color 0.2s ease,
-      color 0.1s ease;
   }
 
   #root {
@@ -227,7 +259,7 @@
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all duration-150;
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all duration-200;
     color: var(--text-secondary);
   }
   .sidebar-item:hover {
@@ -240,7 +272,7 @@
   }
 
   .tag-pill {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-150 cursor-pointer border;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer border;
     background: var(--surface-active);
     color: var(--text-secondary);
     border-color: var(--surface-border);
@@ -275,5 +307,21 @@
       linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
       linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+
+  /* Image Tints for Dark Mode */
+  img[alt="Note Banner"],
+  img[alt="Empty notes"],
+  img[alt="No results"] {
+    filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    transition: filter 200ms ease;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .light img[alt="Note Banner"],
+  .light img[alt="Empty notes"],
+  .light img[alt="No results"] {
+    filter: none;
   }
 }

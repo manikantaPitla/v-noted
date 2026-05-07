@@ -47,7 +47,7 @@ export function Header() {
         className="
           flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-sm
           bg-accent hover:bg-accent-hover text-white
-          transition-all duration-150 shadow-glow hover:shadow-none hover:scale-[0.98]
+          transition-all duration-200 shadow-glow hover:shadow-none hover:scale-[0.98]
           disabled:opacity-60 disabled:cursor-not-allowed flex-shrink-0
         "
         title="New Note (Ctrl+N)"

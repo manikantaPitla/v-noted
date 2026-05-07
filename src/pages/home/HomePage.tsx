@@ -1,9 +1,9 @@
+import { noteBanner } from "@/assets/images";
 import { useUIStore } from "@/store/ui.store";
 import { useNotes } from "@/features/notes/hooks/useNotes";
 import { NotesList } from "@/features/notes/components/NotesList";
 import { NoteEditor } from "@/features/notes/components/NoteEditor";
-import { FileText } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export function HomePage() {
@@ -65,9 +65,9 @@ export function HomePage() {
             <NoteEditor key={selectedNote.id} note={selectedNote} />
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-6 text-center px-8 animate-fade-in">
-            <div className="w-20 h-20 rounded-[2.5rem] flex items-center justify-center bg-surface border border-surface-border">
-              <FileText size={32} className="text-text-muted" />
+          <div className="flex flex-col items-center justify-center h-full gap-0 text-center px-8 animate-fade-in">
+            <div className="w-56 h-36 flex items-center justify-center overflow-hidden">
+              <img src={noteBanner} alt="Note Banner" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="text-xl font-bold text-text-primary mb-2 tracking-tight">Select a note to read</h3>

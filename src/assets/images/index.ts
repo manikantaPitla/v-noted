@@ -1,5 +1,5 @@
-import defaultUser from './default_user.png'
-import quillFeather from './quill-feather.png'
-import vnotedAILogo from './vnoted-ai-logo.png'
+import emptyNotes from './empty_notes.png'
+import noteBanner from './note_banner.png'
+import userAvatar from './user_avatar.png'
 
-export { defaultUser, quillFeather, vnotedAILogo }
+export { emptyNotes, noteBanner, userAvatar }

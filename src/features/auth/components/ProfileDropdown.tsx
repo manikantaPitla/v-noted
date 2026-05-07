@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import * as DD from '@/components/ui/dropdown-menu'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useState } from 'react'
-import { defaultUser } from '@/assets/images'
+import { userAvatar } from '@/assets/images'
 
 export function ProfileDropdown() {
   const { user, logout } = useAuth()
@@ -19,11 +19,11 @@ export function ProfileDropdown() {
           className="flex items-center gap-1.5 p-1 rounded-full hover:bg-surface-hover transition-all duration-200 outline-none border border-transparent hover:border-surface-border"
         >
           <img
-            src={user?.avatar || defaultUser}
+            src={user?.avatar || userAvatar}
             alt={user?.name}
             className="w-7 h-7 rounded-full bg-surface-active flex-shrink-0"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = defaultUser
+              (e.target as HTMLImageElement).src = userAvatar
             }}
           />
         </button>
@@ -34,11 +34,11 @@ export function ProfileDropdown() {
         <div className="px-3 py-3 border-b border-surface-border rounded-t-xl bg-background-secondary">
           <div className="flex items-center gap-3">
             <img
-              src={user?.avatar || defaultUser}
+              src={user?.avatar || userAvatar}
               alt={user?.name}
               className="w-10 h-10 rounded-2xl bg-surface-active flex-shrink-0 border border-surface-border"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = defaultUser
+                (e.target as HTMLImageElement).src = userAvatar
               }}
             />
             <div className="min-w-0">

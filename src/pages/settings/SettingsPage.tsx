@@ -13,7 +13,7 @@ import { categoriesApi } from "@/features/categories/api/categories.api";
 import { useTagsStore } from "@/features/tags/store/tags.store";
 import { authApi } from "@/features/auth/api/auth.api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { defaultUser } from "@/assets/images";
+import { userAvatar } from "@/assets/images";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useToast } from "@/app/providers/ToastProvider";
 
@@ -59,11 +59,11 @@ export function SettingsPage() {
         >
           <div className="p-0.5 rounded-full bg-surface-active border border-surface-border/50 group-hover/profile:border-accent/30 transition-colors">
             <img
-              src={user?.avatar || defaultUser}
+              src={user?.avatar || userAvatar}
               alt={user?.name}
               className="w-12 h-12 rounded-full bg-background object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = defaultUser;
+                (e.target as HTMLImageElement).src = userAvatar;
               }}
             />
           </div>
@@ -234,7 +234,7 @@ function Section({ id, title, description, icon, children }: SectionProps) {
         <button
           id={id}
           className="
-            group w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-300
+            group w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-200
             bg-surface border-surface-border hover:bg-surface-hover hover:border-surface-active
             data-[state=open]:bg-accent-subtle data-[state=open]:border-accent data-[state=open]:shadow-[0_0_20px_rgba(var(--accent-rgb),0.1)]
           "

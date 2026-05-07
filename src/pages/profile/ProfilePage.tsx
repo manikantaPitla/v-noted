@@ -2,7 +2,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useNotes } from "@/features/notes/hooks/useNotes";
 import { useCategoriesStore } from "@/features/categories/store/categories.store";
 import { LogOut, FileText, Layers, Mail, User, ArrowLeft } from "lucide-react";
-import { defaultUser } from "@/assets/images";
+import { userAvatar } from "@/assets/images";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useNavigate } from "react-router-dom";
@@ -30,11 +30,11 @@ export function ProfilePage() {
           <div className="bg-surface border border-surface-border rounded-2xl p-6 flex items-center gap-5">
             <div className="p-1 rounded-full bg-surface-active border border-surface-border/50">
               <img
-                src={user?.avatar || defaultUser}
+                src={user?.avatar || userAvatar}
                 alt={user?.name}
                 className="w-16 h-16 rounded-full bg-background object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = defaultUser;
+                  (e.target as HTMLImageElement).src = userAvatar;
                 }}
               />
             </div>

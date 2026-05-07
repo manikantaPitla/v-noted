@@ -1,6 +1,7 @@
 import { FileText, Search, Tag } from 'lucide-react'
 import { useCreateNote } from '@/features/notes/hooks/useCreateNote'
 import { usePreferences } from '@/store/preferences.store'
+import { emptyNotes } from '@/assets/images'
 
 interface EmptyStateProps {
   searchQuery?: string
@@ -27,8 +28,8 @@ export function EmptyState({ searchQuery, activeCategory, activeTag }: EmptyStat
   if (isFiltered) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-16 px-8 text-center animate-fade-in">
-        <div className="w-16 h-16 rounded-[2rem] bg-surface-hover flex items-center justify-center mb-6 border border-surface-border">
-          <Search size={24} className="text-text-muted" />
+        <div className="w-56 h-36 flex items-center justify-center overflow-hidden mb-0">
+          <img src={emptyNotes} alt="No results" className="w-full h-full object-cover opacity-80" />
         </div>
         <h3 className="text-base font-bold text-text-primary mb-2 tracking-tight">No results found</h3>
         <p className="text-sm text-text-muted leading-relaxed max-w-[240px] mx-auto">
@@ -52,9 +53,8 @@ export function EmptyState({ searchQuery, activeCategory, activeTag }: EmptyStat
 
   return (
     <div className="flex flex-col items-center justify-center h-full py-16 px-8 text-center animate-fade-in">
-      <div className="w-20 h-20 rounded-[2.5rem] bg-accent-subtle border border-accent/20 flex items-center justify-center mb-8 relative">
-        <div className="absolute inset-0 bg-accent/5 rounded-full blur-2xl animate-pulse-soft" />
-        <FileText size={32} className="text-accent relative z-10" />
+      <div className="w-64 h-44 flex items-center justify-center overflow-hidden mb-0">
+        <img src={emptyNotes} alt="Empty notes" className="w-full h-full object-cover" />
       </div>
       <h3 className="text-xl font-bold text-text-primary mb-2 tracking-tight">Start Your Journey</h3>
       <p className="text-sm text-text-muted leading-relaxed max-w-[220px] mx-auto mb-8">

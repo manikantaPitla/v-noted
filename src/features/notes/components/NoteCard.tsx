@@ -39,8 +39,12 @@ export function NoteCard({ note }: NoteCardProps) {
       id={`note-card-${note.id}`}
       onClick={handleClick}
       className={`
-        note-card group relative flex flex-col p-4 rounded-2xl cursor-pointer transition-all duration-200 border
-        ${isActive ? "bg-accent-subtle border-accent/20" : "bg-surface border-surface-border hover:bg-surface-hover hover:border-surface-active"}
+        note-card group relative flex flex-col p-4 rounded-2xl cursor-pointer transition-all duration-300 border
+        hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-black/5
+        ${isActive
+          ? "bg-surface border-accent"
+          : "bg-surface border-surface-border hover:bg-surface-hover hover:border-surface-active"
+        }
       `}
       role="button"
       tabIndex={0}
@@ -48,12 +52,12 @@ export function NoteCard({ note }: NoteCardProps) {
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className={`font-bold text-sm tracking-tight line-clamp-1 flex-1 ${isActive ? "text-accent" : "text-text-primary"}`}>{note.title || "Untitled"}</h3>
+        <h3 className="font-bold text-sm tracking-tight line-clamp-1 flex-1 text-text-primary">{note.title || "Untitled"}</h3>
         <span className="text-[10px] font-medium text-text-muted flex-shrink-0 mt-0.5">{formatTimestamp(note.updated_at)}</span>
       </div>
 
       {/* Preview */}
-      {preview && <p className={`text-xs line-clamp-2 mb-3 leading-relaxed ${isActive ? "text-text-secondary" : "text-text-secondary/80"}`}>{preview}</p>}
+      {preview && <p className="text-xs line-clamp-2 mb-3 leading-relaxed text-text-secondary/80">{preview}</p>}
 
       {/* Footer */}
       <div className="flex items-center gap-2 mt-auto pt-1 flex-wrap">
