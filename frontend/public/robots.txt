@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Shared notes are accessible, but we restrict crawling 
+# of internal dashboard routes to prevent duplicate/empty indexing.
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /profile
