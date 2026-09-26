@@ -24,6 +24,7 @@ Thumbs.db
 # Temp
 prompt.txt
 
-# Graphify
+# Graphify / AI Artifacts
 graphify-out/
 .agents/
+.brain/

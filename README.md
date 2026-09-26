@@ -1,4 +1,4 @@
-# v-noted
+<h1 align="center">V-NOTED</h1>
 
 <p align="center">
   <strong>Capture. Organize. Retrieve.</strong><br>
