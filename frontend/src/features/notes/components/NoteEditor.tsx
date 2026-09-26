@@ -48,6 +48,8 @@ import {
   X,
   MoreVertical,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Type,
   QrCode,
   ExternalLink,
@@ -77,6 +79,7 @@ export function NoteEditor({ note }: NoteEditorProps) {
 
   const [title, setTitle] = useState(note.title);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [isToolbarExpanded, setIsToolbarExpanded] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const titleRef = useRef(note.title);
   const noteIdRef = useRef(note.id);
@@ -210,8 +213,9 @@ export function NoteEditor({ note }: NoteEditorProps) {
 
   return (
     <div className="flex flex-col h-full bg-background relative">
-      <div className="flex items-center gap-1 px-4 sm:px-6 py-2 border-b border-surface-border flex-wrap min-h-[52px]">
-        {/* Core Formatting */}
+      <div className="flex items-start gap-1 px-4 sm:px-6 py-2 border-b border-surface-border min-h-[52px]">
+        <div className={`flex items-center gap-1 flex-1 ${isToolbarExpanded ? "flex-wrap pb-1 sm:pb-0" : "overflow-hidden flex-nowrap sm:flex-wrap"}`}>
+          {/* Core Formatting */}
         <div className="flex items-center gap-0.5 sm:gap-1">
           <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
             <Bold size={14} />
@@ -307,8 +311,9 @@ export function NoteEditor({ note }: NoteEditorProps) {
             <Redo size={14} />
           </ToolbarButton>
         </div>
+        </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 pl-2 flex-shrink-0">
           <LiveViewers viewers={viewers} />
 
           {saveStatus === "saving" && (
@@ -421,7 +426,13 @@ export function NoteEditor({ note }: NoteEditorProps) {
           </div>
 
           {/* Actions - Mobile */}
-          <div className="sm:hidden">
+          <div className="sm:hidden flex items-center gap-1">
+            <button 
+              onClick={() => setIsToolbarExpanded(!isToolbarExpanded)}
+              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-active transition-all"
+            >
+              {isToolbarExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
             <DD.Root>
               <DD.Trigger asChild>
                 <button className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-active transition-all">

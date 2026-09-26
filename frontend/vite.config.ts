@@ -12,7 +12,23 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'vnoted-icon.svg', 'icon-192.png', 'icon-512.png', 'maskable-icon.png'],
+      includeAssets: ['favicon.ico', 'logo.png'],
+      manifest: {
+        name: 'Vnoted — Capture. Organize. Retrieve.',
+        short_name: 'Vnoted',
+        description: 'A fast, minimal note-taking app for developers and knowledge workers.',
+        theme_color: '#0D0D0F',
+        background_color: '#0D0D0F',
+        display: 'standalone',
+        icons: [
+          {
+            src: 'logo.png',
+            sizes: '1024x1024',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
       devOptions: {
         enabled: true,
         type: 'module'

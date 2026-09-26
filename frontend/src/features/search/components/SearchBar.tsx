@@ -57,7 +57,7 @@ export function SearchBar() {
             <X size={14} strokeWidth={2.5} />
           </button>
         ) : (
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
             <kbd className="flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold font-mono text-text-muted bg-surface-active border border-surface-border rounded-lg shadow-sm">
               <Command size={9} />K
             </kbd>
