@@ -1,90 +1,175 @@
 import { Router } from 'express';
-import { db } from '../db';
-import { categories } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth.middleware';
+import { CategoriesController } from '../controllers/categories.controller';
 
 export const categoriesRouter = Router();
 
-function formatCategory(row: typeof categories.$inferSelect) {
-  return {
-    id: row.id,
-    user_id: row.userId,
-    name: row.name,
-    color: row.color,
-    created_at: row.createdAt?.toISOString() ?? '',
-    updated_at: row.updatedAt?.toISOString() ?? null,
-  };
-}
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Get all categories for the authenticated user
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Failed to fetch categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+categoriesRouter.get('/', requireAuth, CategoriesController.getCategories);
 
-// GET /categories
-categoriesRouter.get('/', requireAuth, async (req, res) => {
-  try {
-    const rows = await db.select().from(categories)
-      .where(eq(categories.userId, req.userId!));
-    return res.json(rows.map(formatCategory));
-  } catch (err) {
-    console.error('[categories/get]', err);
-    return res.status(500).json({ error: 'Failed to fetch categories' });
-  }
-});
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Create a new category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Work
+ *               color:
+ *                 type: string
+ *                 example: '#818CF8'
+ *     responses:
+ *       201:
+ *         description: Category created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Failed to create category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+categoriesRouter.post('/', requireAuth, CategoriesController.createCategory);
 
-// POST /categories
-categoriesRouter.post('/', requireAuth, async (req, res) => {
-  try {
-    const { name, color } = req.body;
-    if (!name?.trim()) return res.status(400).json({ error: 'Category name is required' });
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Update an existing category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               color:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Category updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Failed to update category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+categoriesRouter.put('/:id', requireAuth, CategoriesController.updateCategory);
 
-    const [created] = await db.insert(categories)
-      .values({
-        userId: req.userId!,
-        name: name.trim(),
-        color: color || '#818CF8',
-      })
-      .returning();
-
-    return res.status(201).json(formatCategory(created));
-  } catch (err) {
-    console.error('[categories/create]', err);
-    return res.status(500).json({ error: 'Failed to create category' });
-  }
-});
-
-// PUT /categories/:id
-categoriesRouter.put('/:id', requireAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const dto = req.body;
-
-    const updateFields: Record<string, unknown> = { updatedAt: new Date() };
-    if (dto.name !== undefined) updateFields.name = dto.name;
-    if (dto.color !== undefined) updateFields.color = dto.color;
-
-    const [updated] = await db.update(categories)
-      .set(updateFields)
-      .where(and(eq(categories.id, id), eq(categories.userId, req.userId!)))
-      .returning();
-
-    if (!updated) return res.status(404).json({ error: 'Category not found' });
-    return res.json(formatCategory(updated));
-  } catch (err) {
-    console.error('[categories/update]', err);
-    return res.status(500).json({ error: 'Failed to update category' });
-  }
-});
-
-// DELETE /categories/:id
-categoriesRouter.delete('/:id', requireAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await db.delete(categories)
-      .where(and(eq(categories.id, id), eq(categories.userId, req.userId!)))
-      .returning();
-
-    if (result.length === 0) return res.status(404).json({ error: 'Category not found' });
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('[categories/delete]', err);
-    return res.status(500).json({ error: 'Failed to delete category' });
-  }
-});
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Delete a category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Failed to delete category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+categoriesRouter.delete('/:id', requireAuth, CategoriesController.deleteCategory);
