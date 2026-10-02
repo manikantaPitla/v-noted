@@ -3,7 +3,7 @@ import { useUIStore } from '@/store/ui.store'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 export function CategoryFilter() {
-  const { categories } = useCategoriesStore()
+  const { categories, isLoading } = useCategoriesStore()
   const activeCategory = useUIStore((s) => s.activeCategory)
   const setActiveCategory = useUIStore((s) => s.setActiveCategory)
   const setMobileSidebarOpen = useUIStore((s) => s.setMobileSidebarOpen)
@@ -23,6 +23,19 @@ export function CategoryFilter() {
     }
     const qs = params.toString()
     navigate(qs ? `/?${qs}` : '/')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-1">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-3 py-2 w-full" style={{ opacity: 1 - i * 0.15 }}>
+            <div className="skeleton w-2.5 h-2.5 rounded-full flex-shrink-0" />
+            <div className="skeleton h-4 w-3/4 rounded-full" />
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (

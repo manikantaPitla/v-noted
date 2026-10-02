@@ -24,7 +24,7 @@ export function Sidebar() {
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddTag, setShowAddTag] = useState(false);
 
-  const { tags: allTags, addTag } = useTagsStore();
+  const { tags: allTags, addTag, isLoading: isTagsLoading } = useTagsStore();
   const hasFilters = activeTag || activeCategory;
 
   // Restore active category from URL ?tab= param on mount / URL change
@@ -95,7 +95,13 @@ export function Sidebar() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar">
-            {uniqueTags.length > 0 ? (
+            {isTagsLoading ? (
+              <div className="flex flex-wrap gap-1.5">
+                {[45, 60, 50, 70, 40, 55].map((width, i) => (
+                  <div key={i} className="skeleton h-5 rounded-full" style={{ width: `${width}px`, opacity: 1 - i * 0.1 }} />
+                ))}
+              </div>
+            ) : uniqueTags.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {uniqueTags.map((tag) => (
                   <button
